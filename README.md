@@ -1,5 +1,10 @@
 Artilleriya Koordinat Hesablayıcı (Demo)
-Bu proje, topçu birlikləri üçün hazırlanmış bir koordinat və atış göstəriciləri hesablayıcısıdır. İstifadəçi interaktiv xəritə üzərindən top və hədəf koordinatlarını seçərək, aralarındakı məsafəni, azimut bucağını və istifadə edilən sistemə uyğun olaraq atış bucağını hesablaya bilər.
+Bu proyekt, topçu birlikləri üçün hazırlanmış bir koordinat və atış göstəriciləri hesablayıcısıdır. İstifadəçi interaktiv xəritə üzərindən ardıcıllıqla top və hədəf koordinatlarını seçərək, və ya manual şəkildə daxil edərək aralarındakı məsafəni, azimut bucağını və istifadə edilən sistemə uyğun olaraq atış bucağını hesablaya bilər.
+
+Hazırda: 
+D-30   Qəlpəli-Fuqas OF-462 mərmisi
+D-20   Qəlpəli-Fuqas  OF-540mərmisi
+BM-21 Grad (122mm) 9M22U mərmisi üçün sadə hesablamalar aparıla bilər
 
 https://mrdysbv.github.io/artillery/
 Bu demo versiyasıdır və yalnız vizual təhlil və təcrübə məqsədi daşıyır. Real döyüş məqsədilə istifadə edilə bilməz.
