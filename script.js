@@ -107,17 +107,17 @@ function calculate() {
     elevation = (angle * 180 / Math.PI).toFixed(2);
   }
 
-  let result = 
+  let result = `
     <strong>Yer Yüzeyi Mesafesi:</strong> ${groundDistance.toFixed(2)} m<br>
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
     <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
-  ;
+  `;
 
   if (insideRange && elevation) {
-    result += <strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°;
+    result += `<strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°`;
   } else {
-    result += <span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>;
+    result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>`;
   }
 
   document.getElementById('output').innerHTML = result;
