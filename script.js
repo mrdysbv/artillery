@@ -97,17 +97,18 @@ function calculate() {
 
   const deltaDeg = (((azimuthDeg - gunAngle) + 540) % 360 - 180).toFixed(2);
 
-  const v = systems[system].velocity;
-  const g = 9.81;
-  const insideRange = groundDistance <= systems[system].maxRange;
+  const maxRange = systems[system].maxRange;
+  const insideRange = groundDistance <= maxRange;
   let elevation = null;
 
   if (insideRange) {
-    const angle = Math.asin((g * groundDistance) / (v * v)) / 2;
-    elevation = (angle * 180 / Math.PI).toFixed(2);
+    // Empirik düzəliş: 45° bucaqda maxRange-ə çatır
+    const ratio = groundDistance / maxRange;
+    const elevationRad = Math.asin(ratio) / 2;
+    elevation = (elevationRad * 180 / Math.PI).toFixed(2);
   }
 
-  // Yeni əlavə: Yerə paralel baxış bucağı
+  // Yerə paralel baxış bucağı
   const aimAngle = Math.atan(dz / groundDistance) * 180 / Math.PI;
 
   let result = `
