@@ -12,52 +12,41 @@ function calculate() {
   const dy = (x2 - x1) * 110540;
   const dz = h2 - h1;
 
-  const groundDistance = Math.sqrt(dx * dx + dy * dy);
+  const R = Math.sqrt(dx * dx + dy * dy); // Yer səthi məsafəsi
+  const h = dz;
+
   const azimuthDeg = (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360;
   const deltaDeg = (((azimuthDeg - gunAngle) + 540) % 360 - 180).toFixed(2);
 
   const v = systems[system].velocity;
   const g = 9.81;
-  const h = dz;
 
-  const R = groundDistance;
   const v2 = v * v;
-
   const discriminant = v2 * v2 - g * (g * R * R + 2 * h * v2);
 
-  let elevationLow = null;
-  let elevationHigh = null;
   let result = `
-    <strong>Yer Yüzeyi Mesafesi:</strong> ${groundDistance.toFixed(2)} m<br>
-    <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
-    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg.toFixed(2)}°<br>
+    <strong>Yer məsafəsi:</strong> ${R.toFixed(2)} m<br>
+    <strong>Hündürlük fərqi:</strong> ${h.toFixed(2)} m<br>
+    <strong>Hədəfin istiqaməti:</strong> ${azimuthDeg.toFixed(2)}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
   `;
 
-  if (discriminant >= 0) {
+  if (discriminant < 0) {
+    result += `<span style="color:red;"><strong>Bu məsafə üçün trayektoriya mümkün deyil!</strong></span>`;
+  } else {
     const sqrtDisc = Math.sqrt(discriminant);
-    const angleLowRad = Math.atan((v2 - sqrtDisc) / (g * R));
-    const angleHighRad = Math.atan((v2 + sqrtDisc) / (g * R));
-
-    elevationLow = (angleLowRad * 180 / Math.PI).toFixed(2);
-    elevationHigh = (angleHighRad * 180 / Math.PI).toFixed(2);
+    const angle1 = Math.atan((v2 - sqrtDisc) / (g * R)) * 180 / Math.PI;
+    const angle2 = Math.atan((v2 + sqrtDisc) / (g * R)) * 180 / Math.PI;
 
     result += `
-      <strong>Yüksəlmə Bucaqları (fiziki cəhətdən mümkün):</strong><br>
-      - Aşağı bucaq: ${elevationLow}°<br>
-      - Yuxarı bucaq: ${elevationHigh}°
+      <strong>Yüksəlmə bucaqları:</strong><br>
+      - Aşağı: ${angle1.toFixed(2)}°<br>
+      - Yuxarı: ${angle2.toFixed(2)}°
     `;
-  } else {
-    result += `<span style='color:red'><strong>Bu məsafə və hündürlükdə fiziki olaraq trayektoriya mümkün deyil!</strong></span>`;
   }
 
   document.getElementById('output').innerHTML = result;
 
   if (line) map.removeLayer(line);
   line = L.polyline([[x1, y1], [x2, y2]], { color: discriminant >= 0 ? 'lime' : 'red' }).addTo(map);
-
-  if (!document.getElementById('lockCoords').checked) {
-    if (topMarker) map.removeLayer(topMarker);
-    topMarker = L.marker([x1, y1]).addTo(map).bindPopup('Top').openPopup();
-  }
 }
