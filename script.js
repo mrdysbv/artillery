@@ -1,37 +1,3 @@
-<!DOCTYPE html>
-<html lang="az">
-<head>
-  <meta charset="UTF-8">
-  <title>Top Atışı Hesablama</title>
-  <style>
-    #map { height: 400px; }
-    input { margin: 5px; }
-  </style>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-</head>
-<body>
-  <h2>Top və Hədəf Koordinatları</h2>
-  <input type="checkbox" id="lockCoords"> Koordinatları kilidlə<br>
-  <label>Top X (lat): <input type="number" id="x1" step="0.000001"></label>
-  <label>Top Y (lng): <input type="number" id="y1" step="0.000001"></label>
-  <label>Top hündürlüyü (m): <input type="number" id="h1" step="1" value="0"></label><br>
-  <label>Hədəf X (lat): <input type="number" id="x2" step="0.000001"></label>
-  <label>Hədəf Y (lng): <input type="number" id="y2" step="0.000001"></label>
-  <label>Hədəf hündürlüyü (m): <input type="number" id="h2" step="1" value="0"></label><br>
-  <label>Sistem: 
-    <select id="system">
-      <option value="d30">D-30</option>
-      <option value="d20">D-20</option>
-      <option value="grad">Grad</option>
-    </select>
-  </label><br>
-  <label>Əsas Atış İstiqaməti (°): <input type="number" id="gunAngle" value="0"></label>
-  <button onclick="calculate()">Hesabla</button>
-  <div id="output"></div>
-  <div id="map"></div>
-
-<script>
 let clickCount = 0;
 let lockedLat = null;
 let lockedLng = null;
@@ -79,8 +45,6 @@ function lockCoordinates() {
   }
 }
 
-document.getElementById('lockCoords').addEventListener('change', lockCoordinates);
-
 map.on('click', function(e) {
   const { lat, lng } = e.latlng;
 
@@ -102,6 +66,7 @@ map.on('click', function(e) {
     document.getElementById('x2').value = '';
     document.getElementById('y2').value = '';
     document.getElementById('output').innerHTML = '';
+    document.getElementById('extra').innerHTML = '';
     if (topMarker) map.removeLayer(topMarker);
     if (hedefMarker) map.removeLayer(hedefMarker);
     if (line) map.removeLayer(line);
@@ -138,21 +103,21 @@ function calculate() {
   let elevation = null;
 
   if (insideRange) {
-    const thetaRad = Math.atan2(dz, groundDistance);
-    elevation = (thetaRad * 180 / Math.PI).toFixed(2);
+    const angle = Math.asin((g * groundDistance) / (v * v)) / 2;
+    elevation = (angle * 180 / Math.PI).toFixed(2);
   }
 
-  let result = `
+  let result = 
     <strong>Yer Yüzeyi Mesafesi:</strong> ${groundDistance.toFixed(2)} m<br>
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
-    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg.toFixed(2)}°<br>
+    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
-  `;
+  ;
 
-  if (insideRange && elevation !== null) {
-    result += `<strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°`;
+  if (insideRange && elevation) {
+    result += <strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°;
   } else {
-    result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>`;
+    result += <span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>;
   }
 
   document.getElementById('output').innerHTML = result;
@@ -165,6 +130,3 @@ function calculate() {
     topMarker = L.marker([x1, y1]).addTo(map).bindPopup('Top').openPopup();
   }
 }
-</script>
-</body>
-</html>
