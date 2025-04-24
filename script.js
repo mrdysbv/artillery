@@ -75,24 +75,6 @@ map.on('click', function(e) {
   }
 });
 
-function calculateElevationAngle(v, g, d, dz) {
-  const v2 = v * v;
-  const term = v2 * v2 - g * (g * d * d + 2 * dz * v2);
-
-  if (term < 0) {
-    return null; // Fiziki mümkün deyil
-  }
-
-  const sqrtTerm = Math.sqrt(term);
-  const angle1 = Math.atan((v2 + sqrtTerm) / (g * d));
-  const angle2 = Math.atan((v2 - sqrtTerm) / (g * d));
-
-  return {
-    high: (angle1 * 180 / Math.PI).toFixed(2),
-    low: (angle2 * 180 / Math.PI).toFixed(2)
-  };
-}
-
 function calculate() {
   const x1 = parseFloat(document.getElementById('x1').value);
   const y1 = parseFloat(document.getElementById('y1').value);
@@ -118,24 +100,26 @@ function calculate() {
   const v = systems[system].velocity;
   const g = 9.81;
   const insideRange = groundDistance <= systems[system].maxRange;
+  let elevation = null;
+
+  if (insideRange) {
+    const angle = Math.asin((g * groundDistance) / (v * v)) / 2;
+    elevation = (angle * 180 / Math.PI).toFixed(2);
+  }
+
+  // Yeni əlavə: Yerə paralel baxış bucağı
+  const aimAngle = Math.atan(dz / groundDistance) * 180 / Math.PI;
 
   let result = `
     <strong>Məsafə:</strong> ${groundDistance.toFixed(2)} m<br>
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
-    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg.toFixed(2)}°<br>
+    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
+    <strong>Yuxarı baxış bucağı (yerə paralel):</strong> ${aimAngle.toFixed(2)}°<br>
   `;
 
-  if (insideRange) {
-    const angles = calculateElevationAngle(v, g, groundDistance, dz);
-    if (angles) {
-      result += `
-        <strong>Yüksək trayektoriya:</strong> ${angles.high}°<br>
-        <strong>Alçaq trayektoriya:</strong> ${angles.low}°
-      `;
-    } else {
-      result += `<span style='color:red'><strong>Fiziki mümkün deyil! Trayektoriya mövcud deyil.</strong></span>`;
-    }
+  if (insideRange && elevation) {
+    result += `<strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°`;
   } else {
     result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>`;
   }
