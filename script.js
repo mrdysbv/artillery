@@ -1,80 +1,3 @@
-let clickCount = 0;
-let lockedLat = null;
-let lockedLng = null;
-let map = L.map('map').setView([40.4093, 49.8671], 13);
-
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(pos => {
-    map.setView([pos.coords.latitude, pos.coords.longitude], 14);
-  });
-}
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
-
-let topMarker, hedefMarker, line;
-
-const systems = {
-  d30: { velocity: 690, maxRange: 15300 },
-  d20: { velocity: 655, maxRange: 17400 },
-  grad: { velocity: 690, maxRange: 20000 }
-};
-
-function lockCoordinates() {
-  const checkbox = document.getElementById('lockCoords');
-  const x1 = document.getElementById('x1');
-  const y1 = document.getElementById('y1');
-
-  if (checkbox.checked) {
-    lockedLat = parseFloat(x1.value);
-    lockedLng = parseFloat(y1.value);
-    x1.disabled = true;
-    y1.disabled = true;
-
-    if (topMarker) map.removeLayer(topMarker);
-    topMarker = L.marker([lockedLat, lockedLng]).addTo(map).bindPopup('Top').openPopup();
-    map.setView([lockedLat, lockedLng], 14);
-  } else {
-    lockedLat = null;
-    lockedLng = null;
-    x1.disabled = false;
-    y1.disabled = false;
-
-    if (topMarker) map.removeLayer(topMarker);
-  }
-}
-
-map.on('click', function(e) {
-  const { lat, lng } = e.latlng;
-
-  if (clickCount === 0) {
-    document.getElementById('x1').value = lat.toFixed(6);
-    document.getElementById('y1').value = lng.toFixed(6);
-    if (topMarker) map.removeLayer(topMarker);
-    topMarker = L.marker([lat, lng]).addTo(map).bindPopup('Top').openPopup();
-    clickCount++;
-  } else if (clickCount === 1) {
-    document.getElementById('x2').value = lat.toFixed(6);
-    document.getElementById('y2').value = lng.toFixed(6);
-    if (hedefMarker) map.removeLayer(hedefMarker);
-    hedefMarker = L.marker([lat, lng]).addTo(map).bindPopup('Hədəf').openPopup();
-    clickCount++;
-  } else {
-    document.getElementById('x1').value = '';
-    document.getElementById('y1').value = '';
-    document.getElementById('x2').value = '';
-    document.getElementById('y2').value = '';
-    document.getElementById('output').innerHTML = '';
-    document.getElementById('extra').innerHTML = '';
-    if (topMarker) map.removeLayer(topMarker);
-    if (hedefMarker) map.removeLayer(hedefMarker);
-    if (line) map.removeLayer(line);
-    clickCount = 0;
-    alert("Sıfırlandı. Yeni top nöqtəsi təyin edin.");
-  }
-});
-
 function calculate() {
   const x1 = parseFloat(document.getElementById('x1').value);
   const y1 = parseFloat(document.getElementById('y1').value);
@@ -102,22 +25,26 @@ function calculate() {
   const insideRange = groundDistance <= systems[system].maxRange;
   let elevation = null;
 
+  // Yüksəlmə bucağını hesabla (yalnız yer səthi məsafəsinə görə)
   if (insideRange) {
-    const angle = Math.asin((g * groundDistance) / (v * v)) / 2;
-    elevation = (angle * 180 / Math.PI).toFixed(2);
+    const sin2Theta = (g * groundDistance) / (v * v);
+    if (sin2Theta >= 0 && sin2Theta <= 1) {
+      const angleRad = 0.5 * Math.asin(sin2Theta);
+      elevation = (angleRad * 180 / Math.PI).toFixed(2);
+    }
   }
 
   let result = `
     <strong>Yer Yüzeyi Mesafesi:</strong> ${groundDistance.toFixed(2)} m<br>
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
-    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
+    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg.toFixed(2)}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
   `;
 
-  if (insideRange && elevation) {
+  if (insideRange && elevation !== null) {
     result += `<strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°`;
   } else {
-    result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>`;
+    result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir və ya fiziki olaraq mümkün deyil!</strong></span>`;
   }
 
   document.getElementById('output').innerHTML = result;
