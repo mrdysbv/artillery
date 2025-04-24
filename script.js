@@ -116,7 +116,7 @@ function calculate() {
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
     <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
-    <strong>Yuxarı baxış bucağı (yerə paralel):</strong> ${aimAngle.toFixed(2) + ${elevation}}°<br>
+    <strong>Yuxarı baxış bucağı (yerə paralel):</strong> ${aimAngle.toFixed(2) + $elevation}°<br>
   `;
 
   if (insideRange && elevation) {
