@@ -75,6 +75,24 @@ map.on('click', function(e) {
   }
 });
 
+function calculateElevationAngle(v, g, d, dz) {
+  const v2 = v * v;
+  const term = v2 * v2 - g * (g * d * d + 2 * dz * v2);
+
+  if (term < 0) {
+    return null; // Fiziki mümkün deyil
+  }
+
+  const sqrtTerm = Math.sqrt(term);
+  const angle1 = Math.atan((v2 + sqrtTerm) / (g * d));
+  const angle2 = Math.atan((v2 - sqrtTerm) / (g * d));
+
+  return {
+    high: (angle1 * 180 / Math.PI).toFixed(2),
+    low: (angle2 * 180 / Math.PI).toFixed(2)
+  };
+}
+
 function calculate() {
   const x1 = parseFloat(document.getElementById('x1').value);
   const y1 = parseFloat(document.getElementById('y1').value);
@@ -100,22 +118,24 @@ function calculate() {
   const v = systems[system].velocity;
   const g = 9.81;
   const insideRange = groundDistance <= systems[system].maxRange;
-  let elevation = null;
-
-  if (insideRange) {
-    const angle = Math.asin((g * groundDistance) / (v * v)) / 2;
-    elevation = (angle * 180 / Math.PI).toFixed(2);
-  }
 
   let result = `
-    <strong>Yer Yüzeyi Mesafesi:</strong> ${groundDistance.toFixed(2)} m<br>
+    <strong>Məsafə:</strong> ${groundDistance.toFixed(2)} m<br>
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
-    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
+    <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg.toFixed(2)}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
   `;
 
-  if (insideRange && elevation) {
-    result += `<strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°`;
+  if (insideRange) {
+    const angles = calculateElevationAngle(v, g, groundDistance, dz);
+    if (angles) {
+      result += `
+        <strong>Yüksək trayektoriya:</strong> ${angles.high}°<br>
+        <strong>Alçaq trayektoriya:</strong> ${angles.low}°
+      `;
+    } else {
+      result += `<span style='color:red'><strong>Fiziki mümkün deyil! Trayektoriya mövcud deyil.</strong></span>`;
+    }
   } else {
     result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>`;
   }
