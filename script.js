@@ -116,11 +116,11 @@ function calculate() {
     <strong>Yüksəklik fərqi:</strong> ${dz.toFixed(2)} m<br>
     <strong>Hədəfin şimala nəzərən bucağı:</strong> ${azimuthDeg}°<br>
     <strong>Əsas Atış Bucağına görə:</strong> ${deltaDeg}°<br>
-    <strong>Yuxarı baxış bucağı (yerə paralel):</strong> ${aimAngle.toFixed(2)}°<br>
+    <strong>Coğrafi baxış bucağı (yerə paralel):</strong> ${aimAngle.toFixed(2)}°<br>
   `;
 
   if (insideRange && elevation) {
-    result += `<strong>Topun Yüksəlmə Bucağı:</strong> ${elevation}°`;
+    result += `<strong>Topun Lazımi Yüksəlmə Bucağı:</strong> ${elevation}°`;
   } else {
     result += `<span style='color:red'><strong>Hədəf mənzil xaricindədir!</strong></span>`;
   }
