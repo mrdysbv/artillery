@@ -31,4 +31,4 @@ Mobil uyğun versiya
 Hesabatların PDF olaraq ixracı
 
 Qeyd
-Bu proqram yalnız demo məqsədilə hazırlanmışdır. Hərbi qərarların verilməsi üçün nəzərdə tutulmamışdır.
+Bu proyekt yalnız demo məqsədilə hazırlanmışdır. Hərbi qərarların verilməsi üçün nəzərdə tutulmamışdır.
